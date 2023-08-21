@@ -5,17 +5,61 @@
       href="/home" class="item">看精华</a><a href="/project" class="item">找项目</a>
       <a href="/rank" class="item">查榜单</a>
       <a aria-current="page" href="/activity" class="router-link-active router-link-exact-active item"> 实战活动
-<!--        <img class="new" src="/images/icon_nav_new.png">-->
+        <!--        <img class="new" src="/images/icon_nav_new.png">-->
       </a>
       <div class="v-spacer"></div>
-      <div><a href="/login" class="item">登录</a></div>
+      <div><span class="item" @click="getQRcode()">登录</span></div>
+      <el-dialog
+        title="请使用微信扫码"
+        :visible.sync="centerDialogVisible"
+        :modal="false"
+        width="30%"
+        center>
+<!--        <span>需要注意的是内容是默认不居中的</span>-->
+        <span slot="" class="">
+            <el-image
+              style="width: 250px; height: 250px"
+              :src="url"
+              :fit="fit"></el-image>
+        </span>
+        <span slot="footer" class="dialog-footer">
+<!--    <el-button @click="centerDialogVisible = false">取 消</el-button>-->
+<!--    <el-button type="primary" @click="centerDialogVisible = false">确 定</el-button>-->
+      </span>
+      </el-dialog>
     </div>
   </div>
+
 </template>
 
 <script>
+import { getQrCode, getQrCodeTest } from '/api/login'
 export default {
-  name: 'headerCustom.vue'
+  name: 'headerCustom.vue',
+  data () {
+    return {
+      centerDialogVisible: false,
+      url: 'https://fuss10.elemecdn.com/e/5d/4a731a90594a4af544c0c25941171jpeg.jpeg',
+      fit: 'fill'
+    }
+  },
+  methods: {
+    getQRcode () {
+      this.centerDialogVisible = true
+      getQrCode().then(res => {
+        let jsonObjet = JSON.parse(res.data)
+        let ticket = jsonObjet['ticket']
+        this.url = 'https://mp.weixin.qq.com/cgi-bin/showqrcode?ticket=' + ticket
+        this.$nextTick(() => {
+          this.url = 'https://mp.weixin.qq.com/cgi-bin/showqrcode?ticket=' + ticket
+        })
+        console.log(this.url)
+      })
+      getQrCodeTest().then(res => {
+        console.log(res)
+      })
+    }
+  }
 }
 </script>
 
@@ -75,6 +119,7 @@ img {
   display: flex;
   align-items: center;
 }
+
 .v-spacer {
   flex: 1;
 }
