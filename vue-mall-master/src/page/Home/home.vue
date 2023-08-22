@@ -9,14 +9,6 @@
             <span class="active-text">更多主题，更多实战</span>
           </div>
         </div>
-        <!--      <div class="bg" ref="bg"-->
-        <!--           @mouseover="bgOver($refs.bg)"-->
-        <!--           @mousemove="bgMove($refs.bg,$event)"-->
-        <!--           @mouseout="bgOut($refs.bg)">-->
-        <!--        <span class="img a"></span>-->
-        <!--&lt;!&ndash;        <span class="text b">以傲慢与偏执<br/>回敬傲慢与偏见</span>&ndash;&gt;-->
-        <!--&lt;!&ndash;        <span class="copyright c">code by qingjin.me | picture from t.tt</span>&ndash;&gt;-->
-        <!--      </div>-->
         <div class="image">
           <img src="/static/images/pic_activity_banner.jpg">
         </div>
@@ -32,33 +24,26 @@
           {{button.text}}</el-button>
       </div>
       <div class="content">
-        <div class="card" v-for="card in 9" >
+        <div class="card" v-for="card in this.dataList" >
           <div class="content-top">
-            <img  class="headImg" alt="" src="https://sphere-sh.oss-cn-shanghai.aliyuncs.com/upload/file/2023-06-21/f563b69218dc43a90f1c7b2169976e06.png_bg" onerror="this.onerror=null;this.src='/images/pic_empty_head.jpg';">
+            <img  class="headImg" alt="" :src="card.articleTitlePic" onerror="this.onerror=null;this.src='/images/pic_empty_head.jpg';">
             <div class="title">
-              <span>小红书运营</span>
+              <span>{{ card.articleTitleName }}</span>
             </div>
           </div>
           <div class="content-main">
-            <span>21 天内，完成账号搭建，并开始持续创作小红书笔记，发布不少于3条笔记</span>
+            <span>{{ card.articleDescribe }}</span>
           </div>
           <div class="content-bottom">
             <div class="number">
               <span>376人报名</span>
             </div>
-            <el-button size="small" :style="{ backgroundColor:'#36a590', color:'#FFF'}" @click="selectActiveInfo">查看活动</el-button>
+            <el-button size="small" :style="{ backgroundColor:'#36a590', color:'#FFF'}" @click="selectActiveInfo(card.id)">查看活动</el-button>
           </div>
       </div>
 
 
       </div>
-      <!--    <section class="w mt30 clearfix">-->
-      <!--      <y-shelf title="热门商品">-->
-      <!--        <div slot="content" class="hot">-->
-      <!--          <mall-goods :msg="item" v-for="(item,i) in hot" :key="i"></mall-goods>-->
-      <!--        </div>-->
-      <!--      </y-shelf>-->
-      <!--    </section>-->
       <section class="w mt30 clearfix" v-for="(item,i) in floors" :key="i">
         <y-shelf :title="item.title">
           <div slot="content" class="floors">
@@ -74,6 +59,7 @@
 </template>
 <script>
 import {productHome} from '/api'
+import {getPage, getInfo} from '/api/hanghaimast'
 import YShelf from '/components/shelf'
 import product from '/components/product'
 import mallGoods from '/components/mallGoods'
@@ -91,12 +77,18 @@ export default {
       color: '#FFF',
       floors: [],
       hot: [],
+      dataList: [],
       buttons: [
         { id: 1, color: 'primary', fontColor: 'black', text: '全部(9)' },
         { id: 2, color: 'primary', fontColor: 'black', text: '从零到一(6)' },
         { id: 3, color: 'primary', fontColor: 'black', text: '深耕赛道(3)' }
       ]
     }
+  },
+  created () {
+    this.buttons[0].color = '#006659'
+    this.buttons[0].fontColor = '#FFF'
+    this.getPage()
   },
   methods: {
     // 鼠标移入
@@ -143,9 +135,23 @@ export default {
         }
       })
     },
+    /* 初始化航海活动 */
+    getPage () {
+      getPage().then(res => {
+        this.dataList = res.data.list
+      })
+    },
     /* 查看活动 */
-    selectActiveInfo () {
-      this.$router.push({path: 'sailingInfo'})
+    selectActiveInfo (id) {
+      let query = {
+        'id': id
+      }
+      getInfo(query).then(res => {
+        // eslint-disable-next-line standard/object-curly-even-spacing
+        let data = res.data
+        localStorage.setItem('sailingInfoData', JSON.stringify(data))
+        this.$router.push({ name: 'sailingInfo', params: data })
+      })
     }
   },
   mounted () {

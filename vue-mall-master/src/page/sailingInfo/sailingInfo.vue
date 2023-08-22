@@ -10,10 +10,10 @@
           </div>
           <div class="info">
             <div class="title">
-              <span>小红书运营</span>
+              <span>{{ savedData.articleTitleName }}</span>
             </div>
             <div class="hint">
-              <span>21 天内，完成账号搭建，并开始持续创作小红书笔记，发布不少于3条笔记</span>
+              <span>{{ savedData.articleDescribe }}</span>
             </div>
             <div class="expire">
               <span>截止报名：2023/06/16 23:59  星期五</span>
@@ -36,33 +36,10 @@
                 <div class="cardContent" >
                   <div v-for="item in items.content">
                     <templet-title  :text="item.text" v-if="item.type === undefined && item.order!=true"></templet-title>
-                    <templet-children-ul  :text="item.text" v-if="item.order"></templet-children-ul>
+                    <templet-children-ul  :text="item.text" v-if="item.type"></templet-children-ul>
                     <templet-content-stage  :text="item.text" v-if="item.type == 'head'"></templet-content-stage>
-<!--                    <templet-content-week :text="item.text" v-if="item.type == 'head'"></templet-content-week>-->
                   </div>
                 </div>
-
-<!--                <div class="cardContent">-->
-<!--                  <div class="contentWord">-->
-<!--                    <div class="div">-->
-<!--                      <span>传统的商业模式是通过商业资产的成功，来成就个人的成功。但是，这样的模式投入成本大，门槛高，成功率也较低。</span>-->
-<!--                    </div>-->
-<!--                  </div>&lt;!&ndash;&ndash;&gt;&lt;!&ndash;&ndash;&gt;&lt;!&ndash;&ndash;&gt;&lt;!&ndash;&ndash;&gt;&lt;!&ndash;&ndash;&gt;&lt;!&ndash;&ndash;&gt;-->
-<!--                  <templet-title :text="text"></templet-title>-->
-<!--                  <div class="contentWord">-->
-<!--                    <div class="div"><span>然而数据显示，小红书平均带货转化率为 21.4%。并且基于平台内有一群爱“买买买”的用户，以及天然“种草”的社区属性，非常适合普通人在小红书上轻资产创业，提升个人品牌的成功率。</span>-->
-<!--                    </div>-->
-<!--                  </div>&lt;!&ndash;&ndash;&gt;&lt;!&ndash;&ndash;&gt;&lt;!&ndash;&ndash;&gt;&lt;!&ndash;&ndash;&gt;&lt;!&ndash;&ndash;&gt;&lt;!&ndash;&ndash;&gt;-->
-<!--                  <div class="contentWord">-->
-<!--                    <div class="div">-->
-<!--                      <span>什么样的人适合做小红书？在某一领域有擅长点或者自有产品的人群。如果以上都没有，也没有关系，只要你对某一领域感兴趣即可。</span>-->
-<!--                    </div>-->
-<!--                  </div>&lt;!&ndash;&ndash;&gt;&lt;!&ndash;&ndash;&gt;&lt;!&ndash;&ndash;&gt;&lt;!&ndash;&ndash;&gt;&lt;!&ndash;&ndash;&gt;&lt;!&ndash;&ndash;&gt;-->
-<!--                  <div class="contentWord">-->
-<!--                    <div class="div">-->
-<!--                      <span>你可以在本次航海实战中，通过学习别人的经验，以及亲自实践来完成自己的账号定位，并且创作出符合小红书平台调性的笔记，最终实现个人影响力和变现力的提升。</span>-->
-<!--                    </div>-->
-<!--                  </div>&lt;!&ndash;&ndash;&gt;&lt;!&ndash;&ndash;&gt;&lt;!&ndash;&ndash;&gt;&lt;!&ndash;&ndash;&gt;&lt;!&ndash;&ndash;&gt;&lt;!&ndash;&ndash;&gt;</div>-->
               </div>
             </div>
             <div  class="activeIntroduce vc-pc">
@@ -221,19 +198,30 @@
               <span>保证金</span>
               <div class="v-spacer"></div>
               <div class="price-num"><span>¥</span>
-                <span class="large">299.00</span>
+                <span class="large">{{price}}</span>
               </div>
             </div>
             <div class="hint">
               <div><span>未参加本次活动</span></div>
             </div>
             <div>
+              <el-button style="width: 270px" @click="pay"> 报名</el-button>
+              <el-button style="width: 270px"> 已报名</el-button>
               <el-button style="width: 270px"> 已停止报名</el-button>
             </div>
 
           </div>
         </div>
       </div>
+      <el-dialog
+        title="支付保证金"
+        :visible.sync="payShow"
+        :modal="false"
+        width="30%"
+        center>
+        <span>支付金额：{{savedData.price }}</span>
+        <img :src="QRImgUrl" />
+      </el-dialog>
     </div>
   </div>
 </template>
@@ -244,10 +232,16 @@ import templetChildrenUl from '/components/templetChildrenUl'
 import templetContentUl from '/components/templetContentUl'
 import templetContentStage from '/components/templetContentStage'
 import templetContentWeek from '/components/templetContentWeek'
+import QRCode from 'qrcode'
+import {getQrCode} from '/api/pay'
+import { getTemplateListByInfoId, getInfo } from '/api/hanghaimast'
+
 export default {
   components: {
     templetTitle, templetChildrenUl, templetContentUl, templetContentStage, templetContentWeek
   },
+  props: [ 'articleTitleName', 'articleDescribe', 'price', 'articleType', 'id' ],
+
   data () {
     return {
       text: '传统的商业模式是通过商业资产的成功，来成就个人的成功。但是，这样的模式投入成本大，门槛高，成功率也较低。!',
@@ -335,11 +329,86 @@ export default {
             }
           ]
         }
-      ]
+      ],
+      payShow: false,
+      QRImgUrl: '',
+      QRlink: '',
+      savedData: {}
     }
+  },
+  created () {
+    const savedData = localStorage.getItem('sailingInfoData')
+    this.savedData = savedData ? JSON.parse(savedData) : null
+    this.selectActiveInfo()
+    this.getTemplateListByInfoId()
   },
   mounted () {
     this.weekList = this.week.split('\n')
+  },
+  methods: {
+    getTemplateListByInfoId () {
+      getTemplateListByInfoId({'id': this.savedData.id}).then(res => {
+        this.template = res.data
+      })
+    },
+    selectActiveInfo () {
+      let query = {
+        'id': this.savedData.id
+      }
+      getInfo(query).then(res => {
+        // eslint-disable-next-line standard/object-curly-even-spacing
+        this.articleTitleName = res.data.articleTitleName
+      })
+    },
+    async getQRcode () {
+      let param = {
+        device_info: 'web',
+        body: '航海报名',
+        detail: '[{ "goods_detail":[ { "goods_id":"iphone6s_16G", "wxpay_goods_id":"1001", "goods_name":"iPhone6s 16G", "quantity":1, "price":2, "goods_category":"123456", "body":"苹果手机" }]',
+        attach: '沈阳分店',
+        outTradeNo: '21010619930420091115',
+        totalFee: 2,
+        spbillCreateIp: '192.168.108.1',
+        notifyUrl: 'https://chat.wenwen-ai.com/api/pay/notify',
+        productId: '122354132140703564580585',
+        tradeType: 'NATIVE'
+      }
+      await getQrCode(param).then(res => {
+        this.QRlink = res.codeUrl
+      })
+      let opts = {
+        errorCorrectionLevel: 'H', // 容错级别
+        type: 'image/png', // 生成的二维码类型
+        quality: 1, // 二维码质量
+        margin: 3, // 二维码留白边距
+        width: 240, // 宽
+        height: 240, // 高
+        text: this.QRlink, // 二维码内容
+        color: {
+          dark: '#000', // 前景色
+          light: '#FFF'// 背景色
+        }
+      }
+      // this.QRlink 生成的二维码地址url
+      QRCode.toDataURL(this.QRlink, opts, (err, url) => {
+        if (err) throw err
+        // 将生成的二维码路径复制给data的QRImgUrl
+        this.QRImgUrl = url
+      })
+    },
+    pay () {
+      this.payShow = true
+      this.getQRcode()
+      this.timer = setInterval(() => {
+        this.queryOrderStatus()
+      }, 1000)
+    },
+    queryOrderStatus () {
+
+    },
+    handleDecode (decodedText) {
+      this.decodedText = decodedText
+    }
   }
 }
 </script>

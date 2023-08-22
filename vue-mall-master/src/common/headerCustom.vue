@@ -16,7 +16,7 @@
         width="30%"
         center>
 <!--        <span>需要注意的是内容是默认不居中的</span>-->
-        <span slot="" class="">
+        <span slot="" class="wxLonin">
             <el-image
               style="width: 250px; height: 250px"
               :src="url"
@@ -118,11 +118,15 @@ img {
   margin-right: 24px;
   display: flex;
   align-items: center;
+  cursor: pointer
 }
 
 .v-spacer {
   flex: 1;
 }
-
+.wxLonin {
+  display: flex;
+  justify-content: center;
+}
 
 </style>

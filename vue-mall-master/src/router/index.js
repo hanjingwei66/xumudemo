@@ -28,10 +28,10 @@ export default new Router({
       name: 'index',
       redirect: '/home',
       children: [
-        {path: 'home', component: Home},
+        {path: 'home', component: Home, props: true},
         {path: 'goods', component: GoodS},
         {path: 'goodsDetails', name: 'goodsDetails', component: goodsDetails},
-        {path: 'sailingInfo', name: 'sailingInfo', component: sailingInfo}
+        {path: 'sailingInfo', name: 'sailingInfo', component: sailingInfo, props: true}
       ]
     },
     {path: '/login', name: 'login', component: Login},
