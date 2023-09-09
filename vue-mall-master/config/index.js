@@ -23,20 +23,20 @@ module.exports = {
   },
   dev: {
     env: require('./dev.env'),
-    port: 3333,
+    // port: 3333,
     autoOpenBrowser: true,
     assetsSubDirectory: 'static',
     assetsPublicPath: '/',
-    proxyTable: {
-      '/api': {
-        // target: 'http://127.0.0.1:3333',  // 请求本地 需要clone node-api项目
-        target: 'http://localhost:48080', // 请求线上 可直接运行
-        changeOrigin: true,
-        pathRewrite: {
-          '^/api': ''
-        }
-      }
-    },
+    // proxyTable: {
+    //   '/api': {
+    //     // target: 'http://127.0.0.1:3333',  // 请求本地 需要clone node-api项目
+    //     target: 'http://localhost:48080', // 请求线上 可直接运行
+    //     changeOrigin: true,
+    //     pathRewrite: {
+    //       '^/api': ''
+    //     }
+    //   }
+    // },
     // CSS Sourcemaps off by default because relative paths are "buggy"
     // with this option, according to the CSS-Loader README
     // (https://github.com/webpack/css-loader#sourcemaps)

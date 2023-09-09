@@ -206,8 +206,8 @@
             </div>
             <div>
               <el-button style="width: 270px" @click="pay"> 报名</el-button>
-              <el-button style="width: 270px"> 已报名</el-button>
-              <el-button style="width: 270px"> 已停止报名</el-button>
+<!--              <el-button style="width: 270px"> 已报名</el-button>-->
+<!--              <el-button style="width: 270px"> 已停止报名</el-button>-->
             </div>
 
           </div>
@@ -364,10 +364,10 @@ export default {
       let param = {
         device_info: 'web',
         body: '航海报名',
-        detail: '[{ "goods_detail":[ { "goods_id":"iphone6s_16G", "wxpay_goods_id":"1001", "goods_name":"iPhone6s 16G", "quantity":1, "price":2, "goods_category":"123456", "body":"苹果手机" }]',
+        detail: '[{ "goods_detail":[ { "goods_id":"iphone6s_16G", "wxpay_goods_id":"1001", "goods_name":"iPhone6s 16G", "quantity":1, "price":' + this.price * 100 + ', "goods_category":"123456", "body":"苹果手机" }]',
         attach: '沈阳分店',
         outTradeNo: '21010619930420091115',
-        totalFee: 2,
+        totalFee: this.price * 100,
         spbillCreateIp: '192.168.108.1',
         notifyUrl: 'https://chat.wenwen-ai.com/api/pay/notify',
         productId: '122354132140703564580585',
